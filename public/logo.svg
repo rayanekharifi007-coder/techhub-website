@@ -1,0 +1,27 @@
+<svg width="580" height="326" viewBox="0 0 580 326" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <!-- TechHub EMSI Fès — high-quality SVG recreation -->
+  <!-- Icon: 4-lobe pinwheel (clover) in cyan-blue #2D9CDB -->
+  <!-- Text: "Tech HUB" — bold geometric sans, same color -->
+
+  <!-- Icon: four rounded lobes arranged in a pinwheel at 0°/90°/180°/270° -->
+  <!-- Each lobe is a circle at the outer tip tapering to the center -->
+  <g transform="translate(100, 163)">
+    <!-- Top lobe -->
+    <path d="M0 -90 C20 -90 35 -75 35 -55 C35 -40 25 -28 12 -22 L-12 -22 C-25 -28 -35 -40 -35 -55 C-35 -75 -20 -90 0 -90 Z" fill="#2D9CDB"/>
+    <!-- Right lobe -->
+    <path d="M90 0 C90 20 75 35 55 35 C40 35 28 25 22 12 L22 -12 C28 -25 40 -35 55 -35 C75 -35 90 -20 90 0 Z" fill="#2D9CDB"/>
+    <!-- Bottom lobe -->
+    <path d="M0 90 C-20 90 -35 75 -35 55 C-35 40 -25 28 -12 22 L12 22 C25 28 35 40 35 55 C35 75 20 90 0 90 Z" fill="#2D9CDB"/>
+    <!-- Left lobe -->
+    <path d="M-90 0 C-90 -20 -75 -35 -55 -35 C-40 -35 -28 -25 -22 -12 L-22 12 C-28 25 -40 35 -55 35 C-75 35 -90 20 -90 0 Z" fill="#2D9CDB"/>
+    <!-- Center diamond (negative space) -->
+    <path d="M0 -16 L16 0 L0 16 L-16 0 Z" fill="white"/>
+  </g>
+
+  <!-- Text: "Tech HUB" -->
+  <!-- Using a bold geometric sans-serif system font stack for crisp rendering -->
+  <text x="220" y="205" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="118" font-weight="800" fill="#2D9CDB" letter-spacing="-2">
+    <tspan>Tech</tspan>
+    <tspan dx="14" font-weight="800">HUB</tspan>
+  </text>
+</svg>

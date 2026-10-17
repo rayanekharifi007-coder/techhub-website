@@ -1,0 +1,238 @@
+// TechHub EMSI Fès — Prisma schema
+// SQLite-backed data model for projects, events, learning, members, and admin.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String
+  passwordHash String
+  role         String   @default("MEMBER") // ADMIN | LEAD | MEMBER
+  bio          String?
+  avatarUrl    String?
+  github       String?
+  linkedin     String?
+  skills       String?  // JSON-encoded array of strings
+  graduationYear Int?
+  specialty    String?  // e.g. Software Engineering, Networks, Industrial
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  sessions            Session[]
+  projects           Project[]
+  eventRegistrations EventRegistration[]
+  quizAttempts       QuizAttempt[]
+  challengeProgress  ChallengeProgress[]
+  tutorials          Tutorial[]
+  applications       MemberApplication[] @relation("ApplicationReviewer")
+  announcements      Announcement[]
+  proposals          Proposal[]
+  votes              Vote[]
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+model Project {
+  id           String   @id @default(cuid())
+  title        String
+  slug         String   @unique
+  summary      String
+  description  String
+  category     String   // WEB | AI | SYSTEMS | HARDWARE | MOBILE | TOOLING
+  techStack    String   // JSON array
+  githubUrl    String?
+  demoUrl      String?
+  status       String   @default("SHIPPED") // SHIPPED | IN_PROGRESS | CONCEPT
+  featured     Boolean  @default(false)
+  authorId     String
+  author       User     @relation(fields: [authorId], references: [id])
+  contributors String?  // JSON array of names
+  coverColor   String?  // hex accent for cover
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Event {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  description String
+  type        String   // HACKATHON | WORKSHOP | TALK | STUDY_JAM
+  startDate   DateTime
+  endDate     DateTime
+  location    String
+  capacity    Int
+  status      String   @default("UPCOMING") // UPCOMING | LIVE | COMPLETED | CANCELLED
+  schedule    String?  // JSON array of {time, title, speaker}
+  coverColor  String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  registrations EventRegistration[]
+}
+
+model EventRegistration {
+  id        String   @id @default(cuid())
+  eventId   String
+  userId    String
+  status    String   @default("CONFIRMED") // CONFIRMED | WAITLIST | CANCELLED
+  createdAt DateTime @default(now())
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user  User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, userId])
+}
+
+model Tutorial {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  summary     String
+  content     String   // Markdown
+  category    String   // FRONTEND | BACKEND | SYSTEMS | AI | TOOLS
+  difficulty  String   @default("BEGINNER") // BEGINNER | INTERMEDIATE | ADVANCED
+  minutes     Int      @default(15)
+  authorId    String
+  author      User     @relation(fields: [authorId], references: [id])
+  published   Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model CodingChallenge {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  description String
+  difficulty  String   @default("EASY")
+  category    String   @default("ALGORITHMS")
+  starterCode String?
+  solution    String?
+  tests       String?  // JSON array of {input, expected}
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  progress ChallengeProgress[]
+}
+
+model ChallengeProgress {
+  id          String   @id @default(cuid())
+  challengeId String
+  userId      String
+  status      String   @default("STARTED") // STARTED | SOLVED
+  attempts    Int      @default(0)
+  updatedAt   DateTime @default(now())
+
+  challenge CodingChallenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+  user      User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([challengeId, userId])
+}
+
+model Quiz {
+  id        String   @id @default(cuid())
+  title     String
+  slug      String   @unique
+  category  String
+  questions String   // JSON array of {id, prompt, options[], answer}
+  createdAt DateTime @default(now())
+
+  attempts QuizAttempt[]
+}
+
+model QuizAttempt {
+  id        String   @id @default(cuid())
+  quizId    String
+  userId    String
+  score     Int
+  total     Int
+  createdAt DateTime @default(now())
+
+  quiz Quiz @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model MemberApplication {
+  id          String   @id @default(cuid())
+  fullName    String
+  email       String
+  phone       String?
+  specialty   String
+  year        String
+  motivation  String
+  skills      String?  // JSON array
+  experience  String?
+  portfolio   String?
+  status      String   @default("PENDING") // PENDING | APPROVED | REJECTED
+  reviewedBy  String?
+  reviewer    User?    @relation("ApplicationReviewer", fields: [reviewedBy], references: [id])
+  note        String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Announcement {
+  id         String   @id @default(cuid())
+  title      String
+  body       String
+  category   String   @default("CLUB") // CLUB | EVENT | LEARNING
+  pinned     Boolean  @default(false)
+  authorId   String
+  author     User     @relation(fields: [authorId], references: [id])
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model ContactMessage {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  subject   String
+  body      String
+  handled   Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model Proposal {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  category    String   // WORKSHOP | TALK | PROJECT | EVENT
+  authorId    String
+  author      User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  deadline    DateTime
+  status      String   @default("ACTIVE") // ACTIVE | CLOSED
+  winner      Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  votes Vote[]
+}
+
+model Vote {
+  id         String   @id @default(cuid())
+  proposalId String
+  userId     String
+  createdAt  DateTime @default(now())
+
+  proposal Proposal @relation(fields: [proposalId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([proposalId, userId])
+}
